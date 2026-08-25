@@ -1,0 +1,199 @@
+// Skema Prisma untuk Buku Keuangan (versi SaaS) — sudah disesuaikan untuk Prisma 7
+// (baris `url` di datasource dihapus karena di Prisma 7 URL diatur lewat prisma.config.ts)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Pengguna & rumah tangga (household = unit tenant, bisa berisi banyak anggota)
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String            @id @default(cuid())
+  email         String            @unique
+  passwordHash  String
+  name          String
+  emailVerified DateTime?
+  createdAt     DateTime          @default(now())
+  memberships   HouseholdMember[]
+  refreshTokens RefreshToken[]
+}
+
+// Sesi login app mobile (Flutter) — access token JWT berumur pendek tidak
+// disimpan di DB, tapi refresh token-nya disimpan (di-hash) supaya bisa
+// dicabut sewaktu-waktu (logout satu device / logout semua device).
+model RefreshToken {
+  id         String    @id @default(cuid())
+  userId     String
+  tokenHash  String    @unique
+  deviceInfo String?
+  createdAt  DateTime  @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Household {
+  id           String            @id @default(cuid())
+  name         String // mis. "Keluarga Budi"
+  plan         String            @default("free") // free | premium
+  createdAt    DateTime          @default(now())
+  members      HouseholdMember[]
+  transactions Transaction[]
+  budgets      Budget[]
+  goals        Goal[]
+  investments  Investment[]
+  debts        Debt[]
+  accounts     Account[]
+  assets       Asset[]
+  categories   Category[]
+}
+
+// Kelompok kategori transaksi, dikelola user lewat menu Setting (bukan diketik
+// bebas di form transaksi lagi). Dipakai bersama oleh Transaction & Budget
+// supaya Anggaran Bulanan otomatis mengikuti daftar kategori yang sama.
+// "type" memisahkan kategori Pemasukan dari Pengeluaran (jadi 2 tab di
+// halaman Kelola Kategori) — nama yang sama boleh dipakai di kedua sisi
+// (mis. "Lainnya" versi income dan versi expense).
+model Category {
+  id           String        @id @default(cuid())
+  householdId  String
+  name         String
+  type         String        @default("expense") // "income" | "expense"
+  createdAt    DateTime      @default(now())
+  household    Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([householdId, name, type])
+  @@index([householdId])
+}
+
+model HouseholdMember {
+  id           String        @id @default(cuid())
+  userId       String
+  householdId  String
+  role         String        @default("member") // owner | member
+  joinedAt     DateTime      @default(now())
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  household    Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions Transaction[] // transaksi yang dicatat oleh anggota ini
+
+  @@unique([userId, householdId])
+}
+
+// ---------------------------------------------------------------------------
+// Data finansial inti - semua menempel ke householdId untuk isolasi antar tenant
+// ---------------------------------------------------------------------------
+
+// Akun kas/bank (mis. "BCA", "Tunai", "GoPay") — saldo dihitung dari
+// jumlah transaksi yang menempel ke akun ini, bukan diisi manual.
+model Account {
+  id           String        @id @default(cuid())
+  householdId  String
+  name         String
+  type         String // Bank | Tunai | E-Wallet | Lainnya
+  createdAt    DateTime      @default(now())
+  household    Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  householdId String
+  memberId    String
+  accountId   String // akun kas/bank asal transaksi ini
+  debtId      String? // diisi kalau transaksi ini adalah pembayaran utang, otomatis mengurangi Debt.remainingAmount
+  type        String // "income" | "expense"
+  amount      Decimal         @db.Decimal(14, 2)
+  name        String // Nama Transaksi (bebas diisi, mis. "Makan siang di warung Bu As")
+  categoryId  String // kategori dipilih dari daftar terkelola (menu Setting), bukan diketik bebas
+  date        DateTime
+  note        String?
+  invoiceUrl  String? // URL ke object storage (S3/R2/MinIO), bukan base64
+  createdAt   DateTime        @default(now())
+  household   Household       @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  member      HouseholdMember @relation(fields: [memberId], references: [id])
+  account     Account         @relation(fields: [accountId], references: [id])
+  debt        Debt?           @relation(fields: [debtId], references: [id])
+  category    Category        @relation(fields: [categoryId], references: [id])
+
+  @@index([householdId, date])
+  @@index([accountId])
+  @@index([debtId])
+  @@index([categoryId])
+}
+
+model Budget {
+  id            String    @id @default(cuid())
+  householdId   String
+  categoryId    String
+  monthlyAmount Decimal   @db.Decimal(14, 2)
+  household     Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  category      Category  @relation(fields: [categoryId], references: [id])
+
+  @@unique([householdId, categoryId])
+}
+
+model Goal {
+  id           String    @id @default(cuid())
+  householdId  String
+  name         String
+  targetAmount Decimal   @db.Decimal(14, 2)
+  savedAmount  Decimal   @default(0) @db.Decimal(14, 2)
+  deadline     DateTime?
+  createdAt    DateTime  @default(now())
+  household    Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+}
+
+model Investment {
+  id                 String    @id @default(cuid())
+  householdId        String
+  name               String
+  type               String // Saham | Reksadana | Obligasi | Emas | Kripto | Deposito | Properti | Lainnya
+  ticker             String? // khusus saham, mis. "BBCA"
+  lots               Int? // khusus saham, 1 lot = 100 lembar
+  avgPrice           Decimal?  @db.Decimal(14, 2) // harga beli rata-rata per lembar, khusus saham
+  investedAmount     Decimal   @db.Decimal(14, 2) // modal awal
+  currentAmount      Decimal   @db.Decimal(14, 2) // nilai saat ini
+  lastPriceUpdatedAt DateTime?
+  startDate          DateTime
+  household          Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+}
+
+// Aset tetap/fisik (rumah, mobil, perhiasan, dll) — nilainya diisi manual
+// (tidak seliquid Investment, tidak dihitung dari transaksi seperti Account).
+model Asset {
+  id               String    @id @default(cuid())
+  householdId      String
+  name             String
+  type             String // Properti | Kendaraan | Elektronik | Perhiasan | Lainnya
+  currentValue     Decimal   @db.Decimal(14, 2) // estimasi nilai saat ini
+  acquisitionValue Decimal?  @db.Decimal(14, 2) // harga beli/perolehan (opsional, buat referensi)
+  acquisitionDate  DateTime?
+  note             String?
+  createdAt        DateTime  @default(now())
+  household        Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+}
+
+model Debt {
+  id                 String    @id @default(cuid())
+  householdId        String
+  name               String
+  type               String // KPR | Kredit Kendaraan | Kartu Kredit | Pinjaman Online | Pinjaman Pribadi | Lainnya
+  totalAmount        Decimal   @db.Decimal(14, 2) // pokok awal
+  remainingAmount    Decimal   @db.Decimal(14, 2) // sisa utang
+  monthlyInstallment Decimal   @db.Decimal(14, 2)
+  dueDay             Int? // tanggal jatuh tempo, 1-31
+  startDate          DateTime
+  note               String?
+  household          Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions       Transaction[] // transaksi yang mengurangi utang ini
+}

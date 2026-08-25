@@ -1,0 +1,588 @@
+@import "tailwindcss";
+
+/* =====================================================================
+   Token warna — light mode (default) dan dark mode.
+   Pola: definisikan di :root (light), override di bawah prefers-color-
+   scheme (mengikuti sistem), lalu override lagi di [data-theme="dark"]
+   (paksa manual lewat toggle, menang di kedua arah).
+   ===================================================================== */
+:root {
+  color-scheme: light;
+
+  --background: #FFFFFF;
+  --foreground: #1B2E28;
+
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --ink: #1B2E28;
+  --ink-soft: #5B6B63;
+  --primary: #0F6650;
+  --primary-light: #3E9C82;
+  --gold: #C89B3C;
+  --coral: #C4534A;
+  --border: #E4DFD3;
+  --shadow: 0 1px 2px rgba(27, 46, 40, 0.04), 0 4px 14px rgba(27, 46, 40, 0.05);
+  --header-bg: rgba(255, 255, 255, 0.78);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --background: #000000;
+    --foreground: #F2F2F2;
+
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --surface-elevated: #262628;
+    --ink: #F2F2F2;
+    --ink-soft: #98989D;
+    --primary: #34C98E;
+    --primary-light: #5FD1A6;
+    --gold: #E3B65A;
+    --coral: #E37268;
+    --border: #313133;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.35);
+    --header-bg: rgba(0, 0, 0, 0.72);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: #000000;
+  --foreground: #F2F2F2;
+
+  --bg: #000000;
+  --surface: #1C1C1E;
+  --surface-elevated: #262628;
+  --ink: #F2F2F2;
+  --ink-soft: #98989D;
+  --primary: #34C98E;
+  --primary-light: #5FD1A6;
+  --gold: #E3B65A;
+  --coral: #E37268;
+  --border: #313133;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.35);
+  --header-bg: rgba(0, 0, 0, 0.72);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono-num);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body), Arial, sans-serif;
+  min-height: 100vh;
+}
+
+/* Feedback "spring" ala iOS — mengecil sedikit saat ditekan */
+.btn,
+.home-card,
+.nav-tab,
+.bottom-tab-item,
+.item-row-link,
+.stat-card {
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active,
+.home-card:active,
+.bottom-tab-item:active {
+  transform: scale(0.96);
+}
+
+/* ---------- header / nav ---------- */
+.app-header {
+  background: var(--header-bg);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  backdrop-filter: blur(20px) saturate(1.6);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding-top: env(safe-area-inset-top);
+}
+.app-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  max-width: 1040px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+.brand-mark {
+  font-family: var(--font-display), serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--primary);
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--primary);
+  border-radius: 10px;
+  transform: rotate(-3deg);
+  flex-shrink: 0;
+}
+.brand-title {
+  font-family: var(--font-display), serif;
+  font-weight: 600;
+  font-size: 15.5px;
+  line-height: 1.15;
+}
+.brand-sub {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.nav-tab {
+  padding: 7px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+.nav-tab:hover {
+  background: var(--surface-elevated);
+  color: var(--ink);
+}
+.nav-tab.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ---------- mobile nav: dropdown "Lainnya" (dipicu dari bottom tab bar) ---------- */
+.nav-toggle {
+  display: none;
+}
+.nav-mobile-menu {
+  display: none;
+}
+.nav-mobile-menu.open {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-mobile-menu .nav-tab {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 12px;
+  font-size: 14.5px;
+}
+.nav-mobile-menu .nav-tab.active {
+  background: color-mix(in srgb, var(--primary) 16%, transparent);
+  color: var(--primary);
+}
+
+@media (max-width: 720px) {
+  .nav-tabs-desktop {
+    display: none;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.profile-pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+  border-radius: 20px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  background: var(--surface-elevated);
+}
+
+/* ---------- bottom tab bar (mobile, ala iOS) ---------- */
+.bottom-tab-bar {
+  display: none;
+}
+@media (max-width: 720px) {
+  .bottom-tab-bar {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    background: var(--header-bg);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+    border-top: 1px solid var(--border);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    justify-content: space-around;
+  }
+  /* Beri jarak bawah supaya konten halaman tidak ketutup tab bar */
+  .page-main {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom)) !important;
+  }
+}
+.bottom-tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  padding: 6px 2px;
+  border-radius: 10px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.bottom-tab-item.active {
+  color: var(--primary);
+}
+.bottom-tab-item svg {
+  width: 22px;
+  height: 22px;
+}
+
+.more-sheet-backdrop {
+  display: none;
+}
+.more-sheet-backdrop.open {
+  display: block;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 45;
+}
+.more-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 46;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 10px 16px calc(20px + env(safe-area-inset-bottom));
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.18);
+  transform: translateY(100%);
+  transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.more-sheet.open {
+  transform: translateY(0);
+}
+.more-sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  margin: 4px auto 12px;
+}
+
+/* ---------- page shell ---------- */
+.page-main {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+.page-title {
+  font-family: var(--font-display), serif;
+  font-weight: 600;
+  font-size: 30px;
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+
+/* ---------- panels & stats ---------- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.panel-title {
+  font-family: var(--font-display), serif;
+  font-weight: 600;
+  font-size: 15.5px;
+  margin-bottom: 12px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+  min-width: 0; /* biar grid item boleh menyusut, tidak dipaksa lebar oleh isinya */
+  container-type: inline-size; /* dasar untuk .stat-value menyusut mengikuti lebar kartu ini */
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+.stat-value {
+  /* Angka besar (mis. Rp1.330.000.000) mengecil otomatis mengikuti lebar
+     kartu (via unit cqi = % lebar container) supaya tetap satu baris utuh,
+     bukan dipotong di tengah angka seperti overflow-wrap:anywhere lama. */
+  font-size: clamp(12px, 9.5cqi, 16px);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ---------- forms ---------- */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.field-label {
+  font-size: 12px;
+  color: var(--ink-soft);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+.field-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  font-family: var(--font-body), sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+.field-input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+  background: var(--surface);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: transform 0.12s ease;
+}
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: color-mix(in srgb, var(--primary) 88%, black);
+}
+.btn-secondary {
+  background: var(--surface-elevated);
+  color: var(--ink);
+  border-color: var(--border);
+}
+.btn-secondary:hover {
+  background: var(--border);
+}
+.btn-danger {
+  background: none;
+  color: var(--coral);
+  border: none;
+  padding: 4px 8px;
+  font-weight: 500;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.btn-block {
+  width: 100%;
+}
+
+.form-error {
+  color: var(--coral);
+  font-size: 12.5px;
+  margin: 0;
+}
+.form-success {
+  color: var(--primary);
+  font-size: 13px;
+  margin: 0;
+}
+
+/* ---------- lists (gaya "grouped list" ala iOS) ---------- */
+.item-row {
+  border-bottom: 1px solid var(--border);
+  padding: 12px 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.item-row:last-child {
+  border-bottom: none;
+}
+
+.text-income {
+  color: var(--primary);
+}
+.text-expense {
+  color: var(--coral);
+}
+.mono {
+  font-family: var(--font-mono-num), monospace;
+}
+
+.stamp {
+  display: inline-block;
+  border: 1.5px solid currentColor;
+  border-radius: 6px;
+  padding: 1px 8px;
+  font-family: var(--font-mono-num), monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transform: rotate(-1.5deg);
+  color: var(--ink-soft);
+}
+
+.progress-track {
+  height: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.link-plain {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.empty-note {
+  color: var(--ink-soft);
+  font-size: 13px;
+  padding: 16px 0;
+  text-align: center;
+}
+
+/* ---------- home ---------- */
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+.home-card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  text-decoration: none;
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  transition: transform 0.1s;
+}
+.home-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+.home-card-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+.home-card-sub {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
+/* ---------- auth pages ---------- */
+.auth-shell {
+  min-height: calc(100vh - 60px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+.auth-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+}
