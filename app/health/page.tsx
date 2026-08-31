@@ -11,7 +11,7 @@ type Tier = "good" | "warn" | "bad";
 type Indicator = { label: string; score: number | null; detail: string; advice: string };
 
 const TIER_COLOR: Record<Tier, string> = {
-  good: "var(--primary)",
+  good: "var(--success)",
   warn: "var(--gold)",
   bad: "var(--coral)",
 };

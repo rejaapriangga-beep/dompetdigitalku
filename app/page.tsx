@@ -172,7 +172,7 @@ export default async function Home() {
               <div className="progress-track" style={{ display: "flex", overflow: "hidden" }}>
                 <div style={{ width: `${summary.kasPct}%`, background: "var(--primary)" }} />
                 <div style={{ width: `${summary.investasiPct}%`, background: "var(--gold)" }} />
-                <div style={{ width: `${summary.asetTetapPct}%`, background: "var(--primary-light)" }} />
+                <div style={{ width: `${summary.asetTetapPct}%`, background: "var(--success)" }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 10 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 12.5 }}>
@@ -191,7 +191,7 @@ export default async function Home() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 12.5 }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ width: 9, height: 9, borderRadius: "50%", background: "var(--primary-light)", display: "inline-block" }} />
+                    <span style={{ width: 9, height: 9, borderRadius: "50%", background: "var(--success)", display: "inline-block" }} />
                     Aset Tetap ({summary.asetTetapPct.toFixed(1)}%)
                   </span>
                   <span className="mono">Rp{summary.totalAsetTetap.toLocaleString("id-ID")}</span>
@@ -217,7 +217,7 @@ export default async function Home() {
               ) : (
                 <span
                   className="mono"
-                  style={{ color: summary.debtToAssetPct <= 30 ? "var(--primary)" : summary.debtToAssetPct <= 50 ? "var(--gold)" : "var(--coral)" }}
+                  style={{ color: summary.debtToAssetPct <= 30 ? "var(--success)" : summary.debtToAssetPct <= 50 ? "var(--gold)" : "var(--coral)" }}
                 >
                   {summary.debtToAssetPct.toFixed(1)}%
                 </span>
