@@ -120,7 +120,7 @@ export default function DebtsPage() {
                 {d.type}{isPaidOff && " · Lunas"}
               </span>
               <div className="progress-track">
-                <div className="progress-fill" style={{ width: `${pct}%`, background: isPaidOff ? "var(--primary)" : "var(--gold)" }} />
+                <div className="progress-fill" style={{ width: `${pct}%`, background: isPaidOff ? "var(--success)" : "var(--gold)" }} />
               </div>
               <p style={{ fontSize: 13 }} className="mono">
                 Sisa Rp{Number(d.remainingAmount).toLocaleString("id-ID")} dari Rp{Number(d.totalAmount).toLocaleString("id-ID")} · Rp{Number(d.monthlyInstallment).toLocaleString("id-ID")}/bln

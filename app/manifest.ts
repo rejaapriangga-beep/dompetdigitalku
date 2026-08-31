@@ -11,8 +11,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Pengelolaan keuangan keluarga",
     start_url: "/",
     display: "standalone",
-    background_color: "#F7F5F0",
-    theme_color: "#0F6650",
+    background_color: "#FFFFFF",
+    theme_color: "#0894AC",
     orientation: "portrait",
     icons: [
       { src: "/icon-192.png", sizes: "192x192", type: "image/png" },

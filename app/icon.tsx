@@ -16,7 +16,7 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0F6650", // var(--primary)
+          background: "#0894AC", // var(--primary)
           borderRadius: 7,
           color: "#fff",
           fontSize: 20,

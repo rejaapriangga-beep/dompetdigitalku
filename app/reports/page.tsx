@@ -325,7 +325,7 @@ export default function ReportsPage() {
               ) : (
                 <span
                   className="mono"
-                  style={{ color: debtToAssetPct <= 30 ? "var(--primary)" : debtToAssetPct <= 50 ? "var(--gold)" : "var(--coral)" }}
+                  style={{ color: debtToAssetPct <= 30 ? "var(--success)" : debtToAssetPct <= 50 ? "var(--gold)" : "var(--coral)" }}
                 >
                   {debtToAssetPct.toFixed(1)}%
                 </span>
