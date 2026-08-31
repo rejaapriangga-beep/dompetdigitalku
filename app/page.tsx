@@ -81,7 +81,7 @@ export default async function Home() {
       prisma.debt.findMany({ where: { householdId: membership.householdId }, select: { remainingAmount: true } }),
       prisma.transaction.findMany({
         where: { householdId: membership.householdId },
-        orderBy: { date: "desc" },
+        orderBy: { createdAt: "desc" },
         take: 10,
         include: { account: { select: { name: true } }, category: { select: { name: true } } },
       }),
