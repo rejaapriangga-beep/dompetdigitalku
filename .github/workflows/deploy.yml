@@ -1,0 +1,40 @@
+name: Deploy to VPS
+
+# Deploy otomatis ke VPS produksi (dompetdigitalku.my.id) tiap push ke main —
+# SSH masuk, tarik kode terbaru, install dependency, generate Prisma Client,
+# build, lalu restart proses PM2 ("buku-keuangan"). Bisa juga dipicu manual
+# lewat tab Actions (workflow_dispatch) kalau perlu re-deploy tanpa push baru.
+#
+# CATATAN: workflow ini TIDAK menjalankan migrasi database (prisma migrate
+# deploy) secara otomatis — perubahan skema database tetap harus dijalankan
+# manual lewat SSH supaya ada kesempatan review sebelum menyentuh data
+# produksi.
+#
+# Secret yang dibutuhkan (Settings -> Secrets and variables -> Actions):
+# - VPS_HOST — IP VPS
+# - VPS_USER — user SSH (ubuntu)
+# - VPS_SSH_KEY — private key SSH khusus deploy (lihat ~/.ssh/deploy_key di VPS)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/ubuntu/apps/buku-keuangan
+            git pull origin main
+            npm install
+            npx prisma generate
+            npm run build
+            pm2 restart buku-keuangan
