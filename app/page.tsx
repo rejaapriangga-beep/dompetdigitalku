@@ -1,18 +1,37 @@
 // app/page.tsx
+// Layout Beranda sengaja dibuat semirip mungkin dengan versi Android
+// (lib/screens/home_screen.dart di dompetdigitalku-mobile): ringkasan
+// anggaran bulan ini di atas, daftar tile statistik (bukan grid kotak
+// terpisah), lalu menu berupa ikon berwarna alih-alih kartu teks.
 import { auth } from "@/auth";
 import Link from "next/link";
+import {
+  ArrowLeftRight,
+  Wallet,
+  PiggyBank,
+  Target as TargetIcon,
+  TrendingUp,
+  CreditCard,
+  Settings,
+  Home as HomeIcon,
+  Landmark,
+} from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { RecentTransactions } from "./recent-transactions";
 
 const FEATURES = [
-  { href: "/dashboard", title: "Transaksi", sub: "Catat pemasukan & pengeluaran" },
-  { href: "/accounts", title: "Aset & Utang", sub: "Kelola kas, aset tetap & utang" },
-  { href: "/budgets", title: "Anggaran", sub: "Atur batas pengeluaran bulanan" },
-  { href: "/goals", title: "Target Menabung", sub: "Pantau progres tabungan" },
-  { href: "/investments", title: "Investasi", sub: "Lacak portofolio" },
-  { href: "/debts", title: "Utang & Cicilan", sub: "Kelola pelunasan utang" },
-  { href: "/settings/categories", title: "Kategori Transaksi", sub: "Kelola daftar kategori" },
+  { href: "/dashboard", title: "Transaksi", icon: ArrowLeftRight, color: "var(--primary)" },
+  { href: "/accounts", title: "Aset & Utang", icon: Wallet, color: "var(--gold)" },
+  { href: "/budgets", title: "Anggaran", icon: PiggyBank, color: "var(--plum)" },
+  { href: "/goals", title: "Target Menabung", icon: TargetIcon, color: "var(--teal)" },
+  { href: "/investments", title: "Investasi", icon: TrendingUp, color: "var(--sky)" },
+  { href: "/debts", title: "Utang & Cicilan", icon: CreditCard, color: "var(--coral)" },
+  { href: "/settings/categories", title: "Kategori Transaksi", icon: Settings, color: "var(--success)" },
 ];
+
+function monthKey(d: Date) {
+  return `${d.getFullYear()}-${d.getMonth()}`;
+}
 
 export default async function Home() {
   const session = await auth();
@@ -73,9 +92,14 @@ export default async function Home() {
     accountName: string | null;
   }[] = [];
 
+  let budgetSummary: { totalBudget: number; totalSpent: number } | null = null;
+
   if (membership) {
-    const [transactions, investments, assets, debts, recent] = await Promise.all([
-      prisma.transaction.findMany({ where: { householdId: membership.householdId }, select: { type: true, amount: true } }),
+    const [transactions, investments, assets, debts, recent, budgets] = await Promise.all([
+      prisma.transaction.findMany({
+        where: { householdId: membership.householdId },
+        select: { type: true, amount: true, categoryId: true, date: true },
+      }),
       prisma.investment.findMany({ where: { householdId: membership.householdId }, select: { currentAmount: true } }),
       prisma.asset.findMany({ where: { householdId: membership.householdId }, select: { currentValue: true } }),
       prisma.debt.findMany({ where: { householdId: membership.householdId }, select: { remainingAmount: true } }),
@@ -85,7 +109,18 @@ export default async function Home() {
         take: 10,
         include: { account: { select: { name: true } }, category: { select: { name: true } } },
       }),
+      prisma.budget.findMany({ where: { householdId: membership.householdId }, select: { categoryId: true, monthlyAmount: true } }),
     ]);
+
+    // Ringkasan Anggaran Bulan Ini (mirror _BudgetHomeSummary di mobile) —
+    // cuma menghitung kategori yang anggarannya sudah diatur (>0).
+    const budgetedCatIds = new Set(budgets.filter((b) => Number(b.monthlyAmount) > 0).map((b) => b.categoryId));
+    const thisMonth = monthKey(new Date());
+    const totalBudget = budgets.reduce((s, b) => s + Math.max(0, Number(b.monthlyAmount)), 0);
+    const totalSpent = transactions
+      .filter((t) => t.type === "expense" && monthKey(t.date) === thisMonth && budgetedCatIds.has(t.categoryId))
+      .reduce((s, t) => s + Number(t.amount), 0);
+    budgetSummary = { totalBudget, totalSpent };
 
     recentTransactions = recent.map((t) => ({
       id: t.id,
@@ -125,6 +160,17 @@ export default async function Home() {
     };
   }
 
+  const budgetPct =
+    budgetSummary && budgetSummary.totalBudget > 0 ? (budgetSummary.totalSpent / budgetSummary.totalBudget) * 100 : 0;
+  const budgetColor =
+    !budgetSummary || budgetSummary.totalBudget <= 0
+      ? "var(--ink-soft)"
+      : budgetPct >= 100
+        ? "var(--coral)"
+        : budgetPct >= 80
+          ? "var(--gold)"
+          : "var(--success)";
+
   return (
     <main className="page-main">
       <h1 className="page-title">Halo, {session.user.name || session.user.email}</h1>
@@ -134,71 +180,109 @@ export default async function Home() {
         </p>
       )}
 
+      {/* --- Anggaran Bulan Ini (mirror _BudgetHomeSummary di mobile) --- */}
+      {budgetSummary && (
+        <Link
+          href="/budgets"
+          className="tile-row"
+          style={{ background: "color-mix(in srgb, var(--plum) 8%, var(--surface))", borderColor: "color-mix(in srgb, var(--plum) 25%, var(--border))", marginBottom: 16 }}
+        >
+          <div className="tile-icon" style={{ background: `color-mix(in srgb, ${budgetColor} 14%, transparent)` }}>
+            <PiggyBank size={16} color={budgetColor} />
+          </div>
+          <div className="tile-body">
+            <p className="tile-label">Anggaran Bulan Ini</p>
+            {budgetSummary.totalBudget > 0 ? (
+              <>
+                <p className="tile-value mono">
+                  Rp{budgetSummary.totalSpent.toLocaleString("id-ID")} / Rp{budgetSummary.totalBudget.toLocaleString("id-ID")}
+                </p>
+                <div className="progress-track" style={{ height: 5, margin: "5px 0 0" }}>
+                  <div
+                    className="progress-fill"
+                    style={{ width: `${Math.min(100, budgetPct)}%`, background: budgetColor }}
+                  />
+                </div>
+              </>
+            ) : (
+              <p className="tile-value" style={{ color: "var(--ink-soft)" }}>Belum diatur</p>
+            )}
+          </div>
+          {budgetSummary.totalBudget > 0 && (
+            <span className="tile-pct" style={{ background: `color-mix(in srgb, ${budgetColor} 14%, transparent)`, color: budgetColor }}>
+              {budgetPct.toFixed(0)}%
+            </span>
+          )}
+        </Link>
+      )}
+
+      {/* --- Tile statistik (mirror _StatTile di mobile, badge = persentase komposisi aset) --- */}
       {summary && (
         <>
-          <div className="panel" style={{ textAlign: "center", padding: "24px 20px" }}>
-            <p className="stat-label">Total Aset Bersih (Kekayaan Bersih)</p>
-            <p
-              className={`mono ${summary.asetBersihTotal < 0 ? "text-expense" : "text-income"}`}
-              style={{ fontSize: 32, fontWeight: 600, margin: "4px 0" }}
-            >
-              Rp{summary.asetBersihTotal.toLocaleString("id-ID")}
-            </p>
-            <p style={{ fontSize: 12, color: "var(--ink-soft)" }}>Kas + Investasi + Aset Tetap &minus; Utang aktif</p>
-          </div>
-
-          <div className="stat-grid">
-            <div className="stat-card">
-              <p className="stat-label">Kas</p>
-              <p className={`stat-value mono ${summary.kas < 0 ? "text-expense" : ""}`}>Rp{summary.kas.toLocaleString("id-ID")}</p>
-            </div>
-            <div className="stat-card">
-              <p className="stat-label">Investasi</p>
-              <p className="stat-value mono">Rp{summary.totalInvestasi.toLocaleString("id-ID")}</p>
-            </div>
-            <div className="stat-card">
-              <p className="stat-label">Aset Tetap</p>
-              <p className="stat-value mono">Rp{summary.totalAsetTetap.toLocaleString("id-ID")}</p>
-            </div>
-            <div className="stat-card">
-              <p className="stat-label">Utang Aktif</p>
-              <p className="stat-value mono text-expense">Rp{summary.totalUtang.toLocaleString("id-ID")}</p>
-            </div>
-          </div>
-
-          {summary.totalAsetKeseluruhan > 0 && (
-            <div className="panel">
-              <p className="panel-title">Komposisi Aset</p>
-              <div className="progress-track" style={{ display: "flex", overflow: "hidden" }}>
-                <div style={{ width: `${summary.kasPct}%`, background: "var(--primary)" }} />
-                <div style={{ width: `${summary.investasiPct}%`, background: "var(--gold)" }} />
-                <div style={{ width: `${summary.asetTetapPct}%`, background: "var(--success)" }} />
+          <div className="tile-list">
+            <Link href="/accounts" className="tile-row">
+              <div className="tile-icon" style={{ background: "color-mix(in srgb, var(--success) 14%, transparent)" }}>
+                <Wallet size={16} color={summary.kas < 0 ? "var(--coral)" : "var(--success)"} />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 12.5 }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ width: 9, height: 9, borderRadius: "50%", background: "var(--primary)", display: "inline-block" }} />
-                    Kas ({summary.kasPct.toFixed(1)}%)
-                  </span>
-                  <span className="mono">Rp{Math.max(0, summary.kas).toLocaleString("id-ID")}</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 12.5 }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ width: 9, height: 9, borderRadius: "50%", background: "var(--gold)", display: "inline-block" }} />
-                    Investasi ({summary.investasiPct.toFixed(1)}%)
-                  </span>
-                  <span className="mono">Rp{summary.totalInvestasi.toLocaleString("id-ID")}</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 12.5 }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ width: 9, height: 9, borderRadius: "50%", background: "var(--success)", display: "inline-block" }} />
-                    Aset Tetap ({summary.asetTetapPct.toFixed(1)}%)
-                  </span>
-                  <span className="mono">Rp{summary.totalAsetTetap.toLocaleString("id-ID")}</span>
-                </div>
+              <div className="tile-body">
+                <p className="tile-label">Kas</p>
+                <p className={`tile-value mono ${summary.kas < 0 ? "text-expense" : ""}`}>Rp{summary.kas.toLocaleString("id-ID")}</p>
+              </div>
+              {summary.totalAsetKeseluruhan > 0 && (
+                <span className="tile-pct" style={{ background: "color-mix(in srgb, var(--success) 14%, transparent)", color: "var(--success)" }}>
+                  {summary.kasPct.toFixed(0)}%
+                </span>
+              )}
+            </Link>
+            <Link href="/accounts" className="tile-row">
+              <div className="tile-icon" style={{ background: "color-mix(in srgb, var(--sky) 14%, transparent)" }}>
+                <HomeIcon size={16} color="var(--sky)" />
+              </div>
+              <div className="tile-body">
+                <p className="tile-label">Aset Tetap</p>
+                <p className="tile-value mono">Rp{summary.totalAsetTetap.toLocaleString("id-ID")}</p>
+              </div>
+              {summary.totalAsetKeseluruhan > 0 && (
+                <span className="tile-pct" style={{ background: "color-mix(in srgb, var(--sky) 14%, transparent)", color: "var(--sky)" }}>
+                  {summary.asetTetapPct.toFixed(0)}%
+                </span>
+              )}
+            </Link>
+            <Link href="/investments" className="tile-row">
+              <div className="tile-icon" style={{ background: "color-mix(in srgb, var(--gold) 14%, transparent)" }}>
+                <TrendingUp size={16} color="var(--gold)" />
+              </div>
+              <div className="tile-body">
+                <p className="tile-label">Investasi</p>
+                <p className="tile-value mono">Rp{summary.totalInvestasi.toLocaleString("id-ID")}</p>
+              </div>
+              {summary.totalAsetKeseluruhan > 0 && (
+                <span className="tile-pct" style={{ background: "color-mix(in srgb, var(--gold) 14%, transparent)", color: "var(--gold)" }}>
+                  {summary.investasiPct.toFixed(0)}%
+                </span>
+              )}
+            </Link>
+            <Link href="/debts" className="tile-row">
+              <div className="tile-icon" style={{ background: "color-mix(in srgb, var(--coral) 14%, transparent)" }}>
+                <CreditCard size={16} color="var(--coral)" />
+              </div>
+              <div className="tile-body">
+                <p className="tile-label">Utang Aktif</p>
+                <p className="tile-value mono text-expense">Rp{summary.totalUtang.toLocaleString("id-ID")}</p>
+              </div>
+            </Link>
+            <div className="tile-row">
+              <div className="tile-icon" style={{ background: "color-mix(in srgb, var(--primary) 14%, transparent)" }}>
+                <Landmark size={16} color={summary.asetBersihTotal < 0 ? "var(--coral)" : "var(--primary)"} />
+              </div>
+              <div className="tile-body">
+                <p className="tile-label">Total Aset Bersih</p>
+                <p className={`tile-value mono ${summary.asetBersihTotal < 0 ? "text-expense" : ""}`}>
+                  Rp{summary.asetBersihTotal.toLocaleString("id-ID")}
+                </p>
               </div>
             </div>
-          )}
+          </div>
 
           <div className="panel">
             <p className="panel-title">Rasio Keuangan</p>
@@ -232,14 +316,23 @@ export default async function Home() {
 
       {membership && <RecentTransactions transactions={recentTransactions} />}
 
+      {/* --- Menu (mirror _TopMenuBar di mobile: ikon berwarna, bukan kartu teks) --- */}
       <p className="panel-title" style={{ marginTop: 4 }}>Menu</p>
-      <div className="home-grid">
-        {FEATURES.map((f) => (
-          <Link key={f.href} href={f.href} className="home-card">
-            <p className="home-card-title">{f.title}</p>
-            <p className="home-card-sub">{f.sub}</p>
-          </Link>
-        ))}
+      <div className="icon-menu-row">
+        {FEATURES.map((f) => {
+          const Icon = f.icon;
+          return (
+            <Link
+              key={f.href}
+              href={f.href}
+              className="icon-menu-item"
+              style={{ background: `color-mix(in srgb, ${f.color} 14%, transparent)`, color: f.color }}
+            >
+              <Icon size={22} color={f.color} />
+              {f.title}
+            </Link>
+          );
+        })}
       </div>
     </main>
   );
