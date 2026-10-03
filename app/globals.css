@@ -22,6 +22,9 @@
   --success: #1E9E5C;
   --gold: #C89B3C;
   --coral: #A83227;
+  --sky: #3B7FC4;
+  --plum: #8B5FBF;
+  --teal: #1E9E8E;
   --border: #DCEEF2;
   --shadow: 0 1px 2px rgba(20, 35, 42, 0.05), 0 4px 14px rgba(20, 35, 42, 0.06);
   --header-bg: rgba(255, 255, 255, 0.78);
@@ -44,6 +47,9 @@
     --success: #4ADE80;
     --gold: #E3B65A;
     --coral: #E98072;
+    --sky: #5B9FE0;
+    --plum: #A47FD9;
+    --teal: #3DBEA9;
     --border: #313133;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.35);
     --header-bg: rgba(0, 0, 0, 0.72);
@@ -66,6 +72,9 @@
   --success: #4ADE80;
   --gold: #E3B65A;
   --coral: #E98072;
+  --sky: #5B9FE0;
+  --plum: #A47FD9;
+  --teal: #3DBEA9;
   --border: #313133;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.35);
   --header-bg: rgba(0, 0, 0, 0.72);
@@ -570,6 +579,81 @@ body {
 .home-card-sub {
   font-size: 11.5px;
   color: var(--ink-soft);
+}
+
+/* ---------- home: tile list & colored icon tiles (gaya versi Android) ---------- */
+.tile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.tile-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 9px 12px;
+  text-decoration: none;
+  color: inherit;
+}
+a.tile-row:hover {
+  border-color: var(--primary);
+}
+.tile-icon {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tile-body {
+  flex: 1;
+  min-width: 0;
+}
+.tile-label {
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+.tile-value {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tile-pct {
+  flex-shrink: 0;
+  padding: 4px 7px;
+  border-radius: 20px;
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.icon-menu-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0;
+}
+.icon-menu-item {
+  flex: 1 1 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 4px;
+  border-radius: 14px;
+  text-decoration: none;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.15;
 }
 
 /* ---------- auth pages ---------- */
