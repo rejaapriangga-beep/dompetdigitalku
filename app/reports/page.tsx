@@ -10,6 +10,7 @@ type Transaction = {
   name: string;
   category: { id: string; name: string };
   date: string;
+  createdAt: string;
   note: string | null;
 };
 type Debt = { id: string; name: string; type: string; totalAmount: string; remainingAmount: string; monthlyInstallment: string };
@@ -85,7 +86,7 @@ export default function ReportsPage() {
         if (selectedCategories.length > 0 && !selectedCategories.includes(t.category.id)) return false;
         return true;
       })
-      .sort((a, b) => (a.date < b.date ? 1 : -1));
+      .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
   }, [transactions, from, to, type, selectedCategories]);
 
   const summary = filtered.reduce(
