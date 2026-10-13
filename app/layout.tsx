@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "./header";
 import { ServiceWorkerRegister } from "./sw-register";
+import { GoogleAdsense } from "./google-adsense";
 
 const fraunces = Fraunces({
   variable: "--font-display",
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${fraunces.variable} ${inter.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <GoogleAdsense />
         <ServiceWorkerRegister />
         <Providers>
           <Header />
