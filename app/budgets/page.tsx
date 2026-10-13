@@ -28,6 +28,7 @@ export default function BudgetsPage() {
     setLoading(false);
   };
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch awal saat mount, bukan derived state
     load();
   }, []);
 

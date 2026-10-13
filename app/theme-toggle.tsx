@@ -10,6 +10,7 @@ export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
 
   // Hindari mismatch hydration — resolvedTheme baru akurat setelah mount di client.
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- flag mount, tidak ada alternatif sinkron lain
   useEffect(() => setMounted(true), []);
 
   if (!mounted) {
