@@ -19,11 +19,11 @@ export default function PrivacyPage() {
 
       <div className="panel">
         <p style={{ lineHeight: 1.7, fontSize: 14 }}>
-          DompetDigitalKu ("<strong>Aplikasi</strong>", "kami") adalah aplikasi pencatatan keuangan keluarga yang
-          dikelola oleh <strong>MangJaja</strong> sebagai pengembang perorangan ("<strong>Pengendali Data</strong>"),
+          DompetDigitalKu (&quot;<strong>Aplikasi</strong>&quot;, &quot;kami&quot;) adalah aplikasi pencatatan keuangan keluarga yang
+          dikelola oleh <strong>MangJaja</strong> sebagai pengembang perorangan (&quot;<strong>Pengendali Data</strong>&quot;),
           berkedudukan di Indonesia. Kebijakan Privasi ini menjelaskan data pribadi apa yang kami kumpulkan, untuk
           apa, kepada siapa dibagikan, dan hak Anda sebagai pengguna, sesuai dengan Undang-Undang No. 27 Tahun 2022
-          tentang Pelindungan Data Pribadi ("<strong>UU PDP</strong>").
+          tentang Pelindungan Data Pribadi (&quot;<strong>UU PDP</strong>&quot;).
         </p>
       </div>
 
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
       <Section title="4. Lokasi Penyimpanan & Transfer Data Lintas Negara">
         <p style={{ lineHeight: 1.7, fontSize: 14 }}>
           Basis data utama kami (akun, transaksi, dan seluruh data keuangan Anda) disimpan pada server yang
-          berlokasi di <strong>Indonesia</strong>. Foto struk yang disimpan dengan mode "Server", serta proses
+          berlokasi di <strong>Indonesia</strong>. Foto struk yang disimpan dengan mode &quot;Server&quot;, serta proses
           autentikasi melalui Google, dapat diproses menggunakan infrastruktur milik penyedia layanan tersebut yang
           berlokasi di luar Indonesia. Penyedia layanan ini menerapkan standar keamanan internasional, dan data
           yang dibagikan ke mereka dibatasi hanya pada yang benar-benar diperlukan untuk fitur terkait.
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
 
       <Section title="5. Berbagi Data Antar-Anggota Rumah Tangga (Household)">
         <p style={{ lineHeight: 1.7, fontSize: 14 }}>
-          DompetDigitalKu dirancang untuk dipakai bersama oleh satu keluarga ("<strong>rumah tangga</strong>").
+          DompetDigitalKu dirancang untuk dipakai bersama oleh satu keluarga (&quot;<strong>rumah tangga</strong>&quot;).
           <strong> Setiap anggota yang tergabung dalam rumah tangga yang sama dapat melihat seluruh transaksi,
           akun, aset, utang, dan anggaran milik rumah tangga tersebut</strong> — termasuk yang dicatat oleh anggota
           lain. Sebelum mengundang atau bergabung ke sebuah rumah tangga, pastikan Anda memahami dan menyetujui

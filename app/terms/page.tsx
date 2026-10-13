@@ -18,8 +18,8 @@ export default function TermsPage() {
 
       <div className="panel">
         <p style={{ lineHeight: 1.7, fontSize: 14 }}>
-          Selamat datang di DompetDigitalKu ("<strong>Aplikasi</strong>"), dikelola oleh{" "}
-          <strong>MangJaja</strong> ("kami"). Dengan mendaftar dan menggunakan Aplikasi ini, Anda
+          Selamat datang di DompetDigitalKu (&quot;<strong>Aplikasi</strong>&quot;), dikelola oleh{" "}
+          <strong>MangJaja</strong> (&quot;kami&quot;). Dengan mendaftar dan menggunakan Aplikasi ini, Anda
           menyetujui Syarat &amp; Ketentuan berikut. Jika Anda tidak setuju, mohon untuk tidak menggunakan Aplikasi.
         </p>
       </div>
@@ -32,7 +32,7 @@ export default function TermsPage() {
           Seluruh data transaksi, saldo, aset, dan utang dicatat secara manual oleh pengguna dan hanya bersifat
           informasi — bukan transaksi keuangan sungguhan yang diproses oleh kami. Aplikasi ini juga{" "}
           <strong>tidak memberikan nasihat keuangan, investasi, atau perpajakan profesional</strong>; segala
-          angka/skor yang ditampilkan (mis. "Kesehatan Keuangan") bersifat estimasi informatif, bukan rekomendasi
+          angka/skor yang ditampilkan (mis. &quot;Kesehatan Keuangan&quot;) bersifat estimasi informatif, bukan rekomendasi
           yang mengikat.
         </p>
       </Section>
@@ -47,17 +47,17 @@ export default function TermsPage() {
 
       <Section title="3. Model Rumah Tangga (Household)">
         <p style={{ lineHeight: 1.7, fontSize: 14 }}>
-          Aplikasi menggunakan model "rumah tangga" tempat beberapa akun pengguna dapat bergabung dan berbagi data
+          Aplikasi menggunakan model &quot;rumah tangga&quot; tempat beberapa akun pengguna dapat bergabung dan berbagi data
           keuangan yang sama. Dengan bergabung ke sebuah rumah tangga, Anda menyetujui bahwa seluruh anggota
           rumah tangga tersebut dapat melihat data transaksi dan keuangan yang tercatat di dalamnya. Pemilik
-          ("owner") rumah tangga bertanggung jawab mengelola siapa saja yang menjadi anggotanya.
+          (&quot;owner&quot;) rumah tangga bertanggung jawab mengelola siapa saja yang menjadi anggotanya.
         </p>
       </Section>
 
       <Section title="4. Biaya Layanan">
         <p style={{ lineHeight: 1.7, fontSize: 14 }}>
           Saat ini Aplikasi disediakan <strong>secara gratis</strong>. Kami dapat memperkenalkan fitur atau paket
-          berbayar (mis. paket "premium") di kemudian hari. Jika hal itu terjadi, kami akan menginformasikan
+          berbayar (mis. paket &quot;premium&quot;) di kemudian hari. Jika hal itu terjadi, kami akan menginformasikan
           harga, fitur, dan ketentuan pembayaran secara jelas sebelum diberlakukan, dan fitur inti yang sudah Anda
           gunakan secara gratis tidak akan tiba-tiba dikunci tanpa pemberitahuan.
         </p>
@@ -82,7 +82,7 @@ export default function TermsPage() {
 
       <Section title="7. Batasan Tanggung Jawab">
         <p style={{ lineHeight: 1.7, fontSize: 14 }}>
-          Aplikasi disediakan "sebagaimana adanya" (as is). Kami berupaya menjaga keandalan dan keamanan layanan,
+          Aplikasi disediakan &quot;sebagaimana adanya&quot; (as is). Kami berupaya menjaga keandalan dan keamanan layanan,
           namun tidak menjamin Aplikasi akan selalu bebas dari gangguan atau kesalahan. Kami tidak bertanggung
           jawab atas kerugian yang timbul dari kesalahan pencatatan data oleh pengguna, keputusan keuangan yang
           diambil berdasarkan informasi dalam Aplikasi, atau gangguan layanan pihak ketiga yang kami gunakan.

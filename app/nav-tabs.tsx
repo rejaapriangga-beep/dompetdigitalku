@@ -65,6 +65,7 @@ export function NavTabs() {
   // Di-portal ke document.body — kalau tidak, position:fixed-nya jadi
   // relatif ke <header> (yang punya backdrop-filter), bukan ke layar.
   const [mounted, setMounted] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- flag mount untuk hindari mismatch hydration (portal)
   useEffect(() => setMounted(true), []);
 
   const isMoreActive = MORE_ITEMS.some((m) => m.href === pathname);

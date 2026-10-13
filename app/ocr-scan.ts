@@ -89,8 +89,8 @@ function extractAmount(text: string): string | null {
 function extractDate(text: string): string | null {
   const slashMatch = text.match(/(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})/);
   if (slashMatch) {
-    let [, d, m, y] = slashMatch;
-    if (y.length === 2) y = `20${y}`;
+    const [, d, m, yRaw] = slashMatch;
+    const y = yRaw.length === 2 ? `20${yRaw}` : yRaw;
     const dd = d.padStart(2, "0");
     const mm = m.padStart(2, "0");
     if (Number(mm) >= 1 && Number(mm) <= 12 && Number(dd) >= 1 && Number(dd) <= 31) {
