@@ -11,7 +11,7 @@ export async function GET(request: Request) {
 
   const transactions = await prisma.transaction.findMany({
     where: { householdId: ctx.householdId },
-    orderBy: { date: "desc" },
+    orderBy: { createdAt: "desc" },
     include: {
       account: { select: { name: true } },
       debt: { select: { name: true } },
