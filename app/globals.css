@@ -255,6 +255,42 @@ body {
   background: var(--surface-elevated);
 }
 
+.theme-dropdown {
+  position: relative;
+}
+.theme-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 150px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 6px;
+  z-index: 40;
+}
+.theme-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+.theme-dropdown-item:hover {
+  background: var(--surface);
+}
+.theme-dropdown-check {
+  margin-left: auto;
+  color: var(--primary);
+}
+
 /* ---------- bottom tab bar (mobile, ala iOS) ---------- */
 .bottom-tab-bar {
   display: none;
