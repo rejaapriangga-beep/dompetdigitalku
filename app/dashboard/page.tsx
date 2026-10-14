@@ -377,7 +377,7 @@ export default function DashboardPage() {
           <select className="field-input" value={accountId} onChange={(e) => setAccountId(e.target.value)} required>
             {accounts.length === 0 && <option value="">Belum ada akun</option>}
             {accounts.map((a) => (
-              <option key={a.id} value={a.id}>{a.name} ({a.type})</option>
+              <option key={a.id} value={a.id}>{a.name} ({a.type}) — Rp{a.balance.toLocaleString("id-ID")}</option>
             ))}
           </select>
         </div>
