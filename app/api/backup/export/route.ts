@@ -35,7 +35,7 @@ export async function GET(request: Request) {
       version: BACKUP_FORMAT_VERSION,
       exportedAt: new Date().toISOString(),
       householdName: household?.name ?? "",
-      categories: categories.map((c) => ({ id: c.id, name: c.name })),
+      categories: categories.map((c) => ({ id: c.id, name: c.name, type: c.type })),
       accounts: accounts.map((a) => ({ id: a.id, name: a.name, type: a.type })),
       assets: assets.map((a) => ({
         id: a.id,
