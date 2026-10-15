@@ -44,10 +44,6 @@ export default function BudgetsPage() {
 
   return (
     <main className="page-main">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <h1 className="page-title">Anggaran Bulanan</h1>
-        <Link href="/settings/categories" className="link-plain" style={{ fontSize: 12.5 }}>Kelola kategori →</Link>
-      </div>
       <div className="panel">
         {loading ? (
           <p className="empty-note">Memuat...</p>

@@ -1,24 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter, IBM_Plex_Mono } from "next/font/google";
+import { Roboto } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "./header";
 import { ServiceWorkerRegister } from "./sw-register";
 import { GoogleAdsense } from "./google-adsense";
 
-const fraunces = Fraunces({
-  variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["600", "700"],
-});
-const inter = Inter({
+// Sama dengan font app Android (ThemeData.fontFamily: 'Roboto').
+const roboto = Roboto({
   variable: "--font-body",
   subsets: ["latin"],
-});
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-mono-num",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -44,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="id"
       suppressHydrationWarning
-      className={`${fraunces.variable} ${inter.variable} ${plexMono.variable} h-full antialiased`}
+      className={`${roboto.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <GoogleAdsense />

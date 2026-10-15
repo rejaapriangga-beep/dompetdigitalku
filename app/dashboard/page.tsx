@@ -271,7 +271,6 @@ export default function DashboardPage() {
 
   return (
     <main className="page-main">
-      <h1 className="page-title">Transaksi</h1>
 
       <div className="stat-grid">
         <div className="stat-card">

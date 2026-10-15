@@ -12,7 +12,6 @@ export const metadata = {
 export default function DeleteAccountPage() {
   return (
     <main className="page-main" style={{ maxWidth: 760 }}>
-      <p className="page-title" style={{ fontSize: 26 }}>Hapus Akun</p>
 
       <div className="panel">
         <p style={{ lineHeight: 1.7, fontSize: 14 }}>

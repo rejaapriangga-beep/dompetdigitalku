@@ -81,7 +81,6 @@ export default function CategoriesSettingsPage() {
 
   return (
     <main className="page-main">
-      <h1 className="page-title">Kategori Transaksi</h1>
       <p style={{ fontSize: 12.5, color: "var(--ink-soft)", marginTop: -8, marginBottom: 16 }}>
         Kategori di sini dipakai untuk memilih kategori transaksi (bukan diketik bebas lagi). Kategori Pengeluaran
         juga menjadi daftar kategori Anggaran Bulanan.

@@ -12,7 +12,6 @@ export const metadata = {
 export default function PrivacyPage() {
   return (
     <main className="page-main" style={{ maxWidth: 760 }}>
-      <p className="page-title" style={{ fontSize: 26 }}>Kebijakan Privasi</p>
       <p style={{ color: "var(--ink-soft)", fontSize: 13, marginBottom: 24 }}>
         Berlaku sejak: 21 Agustus 2026 &middot; Terakhir diperbarui: 21 Agustus 2026
       </p>

@@ -77,7 +77,6 @@ export default function DebtsPage() {
 
   return (
     <main className="page-main">
-      <h1 className="page-title">Utang & Cicilan</h1>
 
       <div className="stat-grid">
         <div className="stat-card">
