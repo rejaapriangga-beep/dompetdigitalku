@@ -55,10 +55,13 @@ export async function POST(request: Request) {
 
       if (categories.length) {
         await tx.category.createMany({
-          data: categories.map((c: { id: string; name: string }) => ({
+          // Backup lama belum menyimpan `type` — jatuh ke default skema
+          // ("expense") seperti sebelumnya.
+          data: categories.map((c: { id: string; name: string; type?: string }) => ({
             id: c.id,
             householdId,
             name: c.name,
+            ...(c.type === "income" || c.type === "expense" ? { type: c.type } : {}),
           })),
         });
       }
