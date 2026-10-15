@@ -48,7 +48,7 @@ export function ThemeToggle() {
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        <CurrentIcon size={17} />
+        <CurrentIcon size={22} />
       </button>
 
       {open && (

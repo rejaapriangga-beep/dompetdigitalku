@@ -38,7 +38,6 @@ export default function AccountSettingsPage() {
 
   return (
     <main className="page-main">
-      <p className="page-title">Akun Saya</p>
 
       <div className="panel" style={{ borderColor: "var(--coral)" }}>
         <p className="panel-title" style={{ color: "var(--coral)" }}>Zona Berbahaya</p>

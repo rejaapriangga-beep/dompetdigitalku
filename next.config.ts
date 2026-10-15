@@ -16,6 +16,13 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // Sembunyikan header "X-Powered-By: Next.js" (mengurangi info yang bocor ke penyerang).
   poweredByHeader: false,
+  // Halaman yang dihapus saat tampilan web disamakan dengan app Android.
+  async redirects() {
+    return [
+      { source: "/reports", destination: "/health", permanent: true },
+      { source: "/goals", destination: "/", permanent: true },
+    ];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

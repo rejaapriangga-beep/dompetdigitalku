@@ -174,7 +174,6 @@ export default function HealthPage() {
 
   return (
     <main className="page-main">
-      <h1 className="page-title">Kesehatan Keuangan</h1>
 
       {loading ? (
         <p className="empty-note">Memuat...</p>

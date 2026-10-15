@@ -121,7 +121,6 @@ export default function AccountsPage() {
 
   return (
     <main className="page-main">
-      <h1 className="page-title">Aset & Utang</h1>
 
       <div className="stat-grid">
         <div className="stat-card">

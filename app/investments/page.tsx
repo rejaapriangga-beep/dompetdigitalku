@@ -79,7 +79,6 @@ export default function InvestmentsPage() {
 
   return (
     <main className="page-main">
-      <h1 className="page-title">Investasi</h1>
 
       <div className="stat-grid">
         <div className="stat-card">
