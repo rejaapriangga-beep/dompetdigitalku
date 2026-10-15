@@ -627,6 +627,288 @@ a.tile-row:hover {
   transform: scale(0.94);
 }
 
+/* ---------- Transaksi: ringkasan, filter, daftar ---------- */
+.mini-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.mini-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px;
+  min-width: 0;
+}
+.mini-stat-label {
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mini-stat-value {
+  margin-top: 3px;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.date-range .outlined-field {
+  flex: 1;
+  min-width: 0;
+}
+/* Field bergaris dengan label kecil di garis atas (gaya Material). */
+.outlined-field {
+  position: relative;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 10px 10px 8px;
+  background: var(--bg);
+}
+.outlined-field > span {
+  position: absolute;
+  top: -8px;
+  left: 9px;
+  padding: 0 4px;
+  background: var(--bg);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+.outlined-field input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+.outlined-field:focus-within {
+  border-color: var(--primary);
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 6px 6px 6px 12px;
+  background: var(--bg);
+  color: var(--ink-soft);
+}
+.search-field:focus-within {
+  border-color: var(--primary);
+}
+.search-field input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 0;
+  outline: none;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.icon-btn:hover {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.tx-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px 10px 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+.tx-row:hover {
+  background: color-mix(in srgb, var(--primary) 4%, transparent);
+}
+.tx-main {
+  flex: 1;
+  min-width: 0;
+}
+.tx-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.tx-name {
+  min-width: 0;
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tx-meta {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--ink-soft);
+}
+.tx-amount {
+  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 13.5px;
+}
+
+/* ---------- panel bawah (bottom sheet) ---------- */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 50;
+}
+.sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  max-height: 92vh;
+  overflow-y: auto;
+  z-index: 51;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 12px 20px calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  margin: 0 auto 4px;
+  flex-shrink: 0;
+}
+.sheet-title {
+  font-weight: 600;
+  font-size: 17px;
+}
+.scan-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+.scan-box-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+.scan-note {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 8px;
+}
+.btn-outline {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--ink-soft);
+  border-radius: 999px;
+  color: var(--primary);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.btn-outline.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+/* Tombol bersegmen (SegmentedButton di app Android). */
+.segmented {
+  display: flex;
+  border: 1px solid var(--ink-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.segmented button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 8px;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.segmented button + button {
+  border-left: 1px solid var(--ink-soft);
+}
+.segmented button.active {
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+}
+.field-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
 /* ---------- auth pages ---------- */
 .auth-shell {
   min-height: calc(100vh - 60px);

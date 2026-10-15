@@ -1,8 +1,12 @@
 // app/dashboard/page.tsx
+// Halaman Transaksi — disamakan dengan lib/screens/transactions_screen.dart
+// di app Android: ringkasan 3 kolom, riwayat dengan filter, dan form tambah/
+// ubah transaksi di panel bawah (bottom sheet) yang dibuka lewat tombol +.
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { Camera, Check, Image as ImageIcon, Plus, Receipt, Search, Trash2, X } from "lucide-react";
 import { CurrencyInput } from "../currency-input";
 import { scanInvoiceImage } from "../ocr-scan";
 import { saveLocalInvoice, getLocalInvoice, deleteLocalInvoice, getLocalInvoiceIds } from "../local-invoice-store";
@@ -24,6 +28,8 @@ type Transaction = {
 type Account = { id: string; name: string; type: string; balance: number };
 type Debt = { id: string; name: string; remainingAmount: string };
 type Category = { id: string; name: string; type: "income" | "expense" };
+
+const rp = (n: number) => `Rp${n.toLocaleString("id-ID")}`;
 
 export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -47,6 +53,13 @@ export default function DashboardPage() {
   const [scanNotice, setScanNotice] = useState("");
   const [localInvoiceIds, setLocalInvoiceIds] = useState<Set<string>>(new Set());
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  const [typeFilter, setTypeFilter] = useState<"all" | "income" | "expense">("all");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [search, setSearch] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -77,6 +90,11 @@ export default function DashboardPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch awal saat mount, bukan derived state
     load();
+    // Tombol + di Beranda membuka halaman ini dengan ?tambah=1.
+    if (new URLSearchParams(window.location.search).get("tambah") === "1") {
+      setSheetOpen(true);
+      window.history.replaceState(null, "", "/dashboard");
+    }
   }, []);
 
   const activeDebts = debts.filter((d) => Number(d.remainingAmount) > 0);
@@ -95,6 +113,49 @@ export default function DashboardPage() {
     { income: 0, expense: 0 }
   );
 
+  const categoriesForFilter = typeFilter === "all" ? categories : categories.filter((c) => c.type === typeFilter);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return transactions.filter((t) => {
+      if (typeFilter !== "all" && t.type !== typeFilter) return false;
+      if (categoryFilter && t.category.id !== categoryFilter) return false;
+      const d = t.date.slice(0, 10);
+      if (dateFrom && d < dateFrom) return false;
+      if (dateTo && d > dateTo) return false;
+      if (q && !t.name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [transactions, typeFilter, categoryFilter, dateFrom, dateTo, search]);
+
+  const changeTypeFilter = (value: "all" | "income" | "expense") => {
+    setTypeFilter(value);
+    if (categoryFilter && value !== "all" && categories.find((c) => c.id === categoryFilter)?.type !== value) {
+      setCategoryFilter("");
+    }
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setAmount("");
+    setName("");
+    setNote("");
+    setDebtId("");
+    setInvoiceFile(null);
+    setScanNotice("");
+    setError("");
+  };
+
+  const openAdd = () => {
+    resetForm();
+    setSheetOpen(true);
+  };
+
+  const closeSheet = () => {
+    setSheetOpen(false);
+    resetForm();
+  };
+
   const startEdit = (t: Transaction) => {
     setEditingId(t.id);
     setType(t.type);
@@ -108,18 +169,7 @@ export default function DashboardPage() {
     setInvoiceFile(null);
     setScanNotice("");
     setError("");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setAmount("");
-    setName("");
-    setNote("");
-    setDebtId("");
-    setInvoiceFile(null);
-    setScanNotice("");
-    setError("");
+    setSheetOpen(true);
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -137,7 +187,7 @@ export default function DashboardPage() {
         setError(data.error || "Gagal menyimpan perubahan.");
         return;
       }
-      cancelEdit();
+      closeSheet();
       load();
       return;
     }
@@ -199,16 +249,11 @@ export default function DashboardPage() {
       try {
         await saveLocalInvoice(data.transaction.id, invoiceFile);
       } catch {
-        setError("Transaksi tersimpan, tapi foto invoice gagal disimpan lokal (mungkin storage HP penuh).");
+        alert("Transaksi tersimpan, tapi foto invoice gagal disimpan lokal (mungkin storage HP penuh).");
       }
     }
 
-    setAmount("");
-    setName("");
-    setNote("");
-    setDebtId("");
-    setInvoiceFile(null);
-    setScanNotice("");
+    closeSheet();
     load();
   };
 
@@ -246,12 +291,18 @@ export default function DashboardPage() {
     }
   };
 
-  const viewLocalInvoice = async (id: string) => {
-    const stored = await getLocalInvoice(id);
-    if (!stored) return;
-    const url = URL.createObjectURL(stored.blob);
-    window.open(url, "_blank");
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  const viewInvoice = async (t: Transaction) => {
+    if (localInvoiceIds.has(t.id)) {
+      const stored = await getLocalInvoice(t.id);
+      if (!stored) return;
+      const url = URL.createObjectURL(stored.blob);
+      window.open(url, "_blank");
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      return;
+    }
+    if (t.invoiceUrl) {
+      window.open(`/api/uploads/view?key=${encodeURIComponent(t.invoiceUrl)}`, "_blank", "noopener,noreferrer");
+    }
   };
 
   const remove = async (id: string) => {
@@ -271,211 +322,291 @@ export default function DashboardPage() {
 
   return (
     <main className="page-main">
-
-      <div className="stat-grid">
-        <div className="stat-card">
-          <p className="stat-label">Pemasukan</p>
-          <p className="stat-value mono text-income">Rp{totals.income.toLocaleString("id-ID")}</p>
+      <div className="mini-stats">
+        <div className="mini-stat">
+          <p className="mini-stat-label">Pemasukan</p>
+          <p className="mini-stat-value mono" style={{ color: "var(--primary)" }}>{rp(totals.income)}</p>
         </div>
-        <div className="stat-card">
-          <p className="stat-label">Pengeluaran</p>
-          <p className="stat-value mono text-expense">Rp{totals.expense.toLocaleString("id-ID")}</p>
+        <div className="mini-stat">
+          <p className="mini-stat-label">Pengeluaran</p>
+          <p className="mini-stat-value mono" style={{ color: "var(--coral)" }}>{rp(totals.expense)}</p>
         </div>
-        <div className="stat-card">
-          <p className="stat-label">Saldo</p>
-          <p className="stat-value mono">Rp{(totals.income - totals.expense).toLocaleString("id-ID")}</p>
+        <div className="mini-stat">
+          <p className="mini-stat-label">Saldo</p>
+          <p className="mini-stat-value mono" style={{ color: "var(--sky)" }}>{rp(totals.income - totals.expense)}</p>
         </div>
       </div>
 
-      {!editingId && (
-        <div className="form-card">
-          <label className="field-label">Scan Invoice (opsional)</label>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: 140 }}>
-              <label className="field-label" style={{ fontSize: 11 }}>📷 Ambil foto</label>
-              <input
-                className="field-input"
-                type="file"
-                accept="image/*"
-                capture="environment"
-                disabled={scanning}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  handleScan(file);
-                  e.target.value = "";
-                }}
-              />
-            </div>
-            <div style={{ flex: 1, minWidth: 140 }}>
-              <label className="field-label" style={{ fontSize: 11 }}>📁 Upload file</label>
-              <input
-                className="field-input"
-                type="file"
-                accept="image/*"
-                disabled={scanning}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  handleScan(file);
-                  e.target.value = "";
-                }}
-              />
-            </div>
-          </div>
-          <p style={{ fontSize: 11, color: "var(--ink-soft)", margin: 0 }}>
-            Diproses langsung di HP/browser Anda — foto tidak pernah dikirim atau disimpan di server.
-          </p>
-          {scanning && <p style={{ fontSize: 12.5, color: "var(--primary)", margin: 0 }}>Membaca invoice…</p>}
-          {scanNotice && !scanning && <p style={{ fontSize: 12.5, color: "var(--ink-soft)", margin: 0 }}>{scanNotice}</p>}
-        </div>
-      )}
+      <p className="section-head-title" style={{ fontSize: 16, margin: "20px 0 8px" }}>Riwayat</p>
 
-      <form onSubmit={submit} className="form-card">
-        {editingId && (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <p className="panel-title" style={{ marginBottom: 0 }}>Ubah Transaksi</p>
-            <button type="button" onClick={cancelEdit} className="link-plain" style={{ fontSize: 12.5 }}>Batal</button>
-          </div>
+      <div className="chip-row">
+        {([
+          ["all", "Semua"],
+          ["income", "Pemasukan"],
+          ["expense", "Pengeluaran"],
+        ] as const).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            className={`chip ${typeFilter === value ? "active" : ""}`}
+            onClick={() => changeTypeFilter(value)}
+          >
+            {typeFilter === value && <Check size={16} />}
+            {label}
+          </button>
+        ))}
+      </div>
+      <select
+        className="field-input"
+        style={{ maxWidth: 200, marginTop: 8 }}
+        value={categoryFilter}
+        onChange={(e) => setCategoryFilter(e.target.value)}
+      >
+        <option value="">Semua Kategori</option>
+        {categoriesForFilter.map((c) => (
+          <option key={c.id} value={c.id}>{c.name}</option>
+        ))}
+      </select>
+      <div className="date-range">
+        <label className="outlined-field">
+          <span>Dari</span>
+          <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+        </label>
+        <label className="outlined-field">
+          <span>Sampai</span>
+          <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+        </label>
+        {(dateFrom || dateTo) && (
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label="Bersihkan filter tanggal"
+            title="Bersihkan filter tanggal"
+            onClick={() => {
+              setDateFrom("");
+              setDateTo("");
+            }}
+          >
+            <X size={18} />
+          </button>
         )}
-        <select
-          className="field-input"
-          value={type}
-          onChange={(e) => {
-            const newType = e.target.value;
-            setType(newType);
-            setCategoryId(categories.find((c) => c.type === newType)?.id || "");
-          }}
-        >
-          <option value="expense">Pengeluaran</option>
-          <option value="income">Pemasukan</option>
-        </select>
-        <CurrencyInput placeholder="Jumlah (Rp)" value={amount} onChange={setAmount} required />
-        <input className="field-input" placeholder="Nama Transaksi (mis. Makan siang di warung Bu As)" value={name} onChange={(e) => setName(e.target.value)} required />
-
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <label className="field-label">Kategori</label>
-            <Link href="/settings/categories" className="link-plain" style={{ fontSize: 11.5 }}>Kelola kategori →</Link>
-          </div>
-          <select className="field-input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
-            {categoriesForType.length === 0 && !selectedCategoryOutsideType && (
-              <option value="">Belum ada kategori {type === "expense" ? "pengeluaran" : "pemasukan"}</option>
-            )}
-            {selectedCategoryOutsideType && (
-              <option value={selectedCategoryOutsideType.id}>{selectedCategoryOutsideType.name} (kategori lama)</option>
-            )}
-            {categoriesForType.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        </div>
-
-        <input className="field-input" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-
-        <div>
-          <label className="field-label">Akun kas/bank</label>
-          <select className="field-input" value={accountId} onChange={(e) => setAccountId(e.target.value)} required>
-            {accounts.length === 0 && <option value="">Belum ada akun</option>}
-            {accounts.map((a) => (
-              <option key={a.id} value={a.id}>{a.name} ({a.type}) — Rp{a.balance.toLocaleString("id-ID")}</option>
-            ))}
-          </select>
-        </div>
-
-        {type === "expense" && activeDebts.length > 0 && (
-          <div>
-            <label className="field-label">Kaitkan ke utang (opsional, mengurangi sisa utang)</label>
-            <select className="field-input" value={debtId} onChange={(e) => setDebtId(e.target.value)}>
-              <option value="">Tidak dikaitkan</option>
-              {activeDebts.map((d) => (
-                <option key={d.id} value={d.id}>{d.name} — sisa Rp{Number(d.remainingAmount).toLocaleString("id-ID")}</option>
-              ))}
-            </select>
-          </div>
+      </div>
+      <div className="search-field">
+        <Search size={20} />
+        <input
+          placeholder="Cari nama transaksi..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        {search && (
+          <button type="button" className="icon-btn" aria-label="Hapus pencarian" onClick={() => setSearch("")}>
+            <X size={18} />
+          </button>
         )}
+      </div>
 
-        <input className="field-input" placeholder="Catatan (opsional)" value={note} onChange={(e) => setNote(e.target.value)} />
-        {invoiceFile && (
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-              <label className="field-label">Simpan foto invoice ini di mana?</label>
-              <button
-                type="button"
-                onClick={() => { setInvoiceFile(null); setScanNotice(""); }}
-                className="link-plain"
-                style={{ fontSize: 11.5, background: "none", border: "none", cursor: "pointer", padding: 0, font: "inherit" }}
-              >
-                Batal lampirkan
-              </button>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 13 }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                <input type="radio" checked={invoiceStorage === "local"} onChange={() => setInvoiceStorage("local")} />
-                HP ini saja — tidak pernah dikirim ke server, tapi tidak bisa dilihat dari device lain & bisa hilang kalau data browser dihapus
-              </label>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                <input type="radio" checked={invoiceStorage === "server"} onChange={() => setInvoiceStorage("server")} />
-                Server — bisa dilihat dari device lain, tersimpan lebih aman jangka panjang
-              </label>
-            </div>
-          </div>
-        )}
-        <button type="submit" className="btn btn-primary" disabled={uploading || !accountId || !categoryId}>
-          {uploading ? "Mengunggah invoice…" : editingId ? "Simpan Perubahan" : "Tambah"}
-        </button>
-        {error && <p className="form-error">{error}</p>}
-      </form>
-
-      <div className="panel">
-        <p className="panel-title">Riwayat</p>
+      <div style={{ marginTop: 10 }}>
         {loading ? (
           <p className="empty-note">Memuat...</p>
-        ) : transactions.length === 0 ? (
+        ) : filtered.length === 0 ? (
           <p className="empty-note">Belum ada transaksi.</p>
         ) : (
-          transactions.map((t) => (
-            <div key={t.id} className="item-row">
-              <span>
-                <span className="stamp">{t.category.name}</span>{" "}
-                <span style={{ marginLeft: 6 }}>{t.name}</span>{" "}
-                <span style={{ fontSize: 11, color: "var(--ink-soft)", marginLeft: 6 }}>
-                  {new Date(t.date).toLocaleDateString("id-ID")}
-                  {t.account && ` · ${t.account.name}`}
-                  {t.debt && ` · Bayar utang: ${t.debt.name}`}
-                </span>
-                {t.invoiceUrl && (
-                  <a
-                    href={`/api/uploads/view?key=${encodeURIComponent(t.invoiceUrl)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="link-plain"
-                    style={{ fontSize: 11, marginLeft: 8 }}
-                  >
-                    Lihat invoice
-                  </a>
-                )}
-                {localInvoiceIds.has(t.id) && (
+          filtered.map((t) => {
+            const hasInvoice = !!t.invoiceUrl || localInvoiceIds.has(t.id);
+            return (
+              <div key={t.id} className="tx-row" onClick={() => startEdit(t)} role="button" tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && startEdit(t)}>
+                {hasInvoice && (
                   <button
-                    onClick={() => viewLocalInvoice(t.id)}
-                    className="link-plain"
-                    style={{ fontSize: 11, marginLeft: 8, background: "none", border: "none", cursor: "pointer", padding: 0, font: "inherit" }}
+                    type="button"
+                    className="icon-btn"
+                    style={{ color: "var(--primary-light)" }}
+                    aria-label="Lihat invoice"
+                    title="Lihat invoice"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      viewInvoice(t);
+                    }}
                   >
-                    Lihat invoice (HP ini)
+                    <Receipt size={20} />
                   </button>
                 )}
-              </span>
-              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span className={`mono ${t.type === "expense" ? "text-expense" : "text-income"}`}>
-                  {t.type === "expense" ? "-" : "+"}Rp{Number(t.amount).toLocaleString("id-ID")}
+                <div className="tx-main">
+                  <div className="tx-top">
+                    <span className="stamp">{t.category.name}</span>
+                    <span className="tx-name">{t.name}</span>
+                  </div>
+                  <p className="tx-meta">
+                    {new Date(t.date).toLocaleDateString("id-ID")}
+                    {t.account && ` · ${t.account.name}`}
+                    {t.debt && ` · Bayar utang: ${t.debt.name}`}
+                  </p>
+                </div>
+                <span className={`mono tx-amount ${t.type === "expense" ? "text-expense" : "text-income"}`}>
+                  {t.type === "expense" ? "-" : "+"}
+                  {rp(Number(t.amount))}
                 </span>
-                <button onClick={() => startEdit(t)} className="link-plain" style={{ fontSize: 12.5, background: "none", border: "none", cursor: "pointer", padding: 0, font: "inherit" }}>
-                  Ubah
+                <button
+                  type="button"
+                  className="icon-btn"
+                  style={{ color: "var(--coral)" }}
+                  aria-label="Hapus transaksi"
+                  title="Hapus"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    remove(t.id);
+                  }}
+                >
+                  <Trash2 size={20} />
                 </button>
-                <button onClick={() => remove(t.id)} className="btn-danger">Hapus</button>
-              </span>
-            </div>
-          ))
+              </div>
+            );
+          })
         )}
       </div>
+
+      <button type="button" className="fab" onClick={openAdd} aria-label="Tambah transaksi" title="Tambah transaksi">
+        <Plus size={28} />
+      </button>
+
+      {sheetOpen && (
+        <>
+          <div className="sheet-backdrop" onClick={closeSheet} />
+          <form onSubmit={submit} className="sheet" role="dialog" aria-modal="true"
+            aria-label={editingId ? "Ubah Transaksi" : "Tambah Transaksi"}>
+            <div className="sheet-handle" />
+            <p className="sheet-title">{editingId ? "Ubah Transaksi" : "Tambah Transaksi"}</p>
+
+            {!editingId && (
+              <div className="scan-box">
+                <p className="scan-box-title">Scan Invoice (opsional)</p>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <label className={`btn-outline ${scanning ? "disabled" : ""}`}>
+                    <Camera size={18} /> Ambil foto
+                    <input type="file" accept="image/*" capture="environment" hidden disabled={scanning}
+                      onChange={(e) => {
+                        handleScan(e.target.files?.[0]);
+                        e.target.value = "";
+                      }} />
+                  </label>
+                  <label className={`btn-outline ${scanning ? "disabled" : ""}`}>
+                    <ImageIcon size={18} /> Galeri
+                    <input type="file" accept="image/*" hidden disabled={scanning}
+                      onChange={(e) => {
+                        handleScan(e.target.files?.[0]);
+                        e.target.value = "";
+                      }} />
+                  </label>
+                </div>
+                {scanning && <p className="scan-note" style={{ color: "var(--primary)" }}>Membaca invoice…</p>}
+                {scanNotice && !scanning && <p className="scan-note">{scanNotice}</p>}
+                {invoiceFile && (
+                  <div style={{ marginTop: 8 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                      <span className="field-label" style={{ margin: 0 }}>Simpan foto invoice ini di mana?</span>
+                      <button type="button" className="link-plain" style={{ fontSize: 11.5, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                        onClick={() => { setInvoiceFile(null); setScanNotice(""); }}>
+                        Batal lampirkan
+                      </button>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12.5, marginTop: 6 }}>
+                      <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                        <input type="radio" checked={invoiceStorage === "local"} onChange={() => setInvoiceStorage("local")} />
+                        HP ini saja — tidak dikirim ke server, tapi tidak bisa dilihat dari device lain
+                      </label>
+                      <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                        <input type="radio" checked={invoiceStorage === "server"} onChange={() => setInvoiceStorage("server")} />
+                        Server — bisa dilihat dari device lain
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="segmented">
+              {([
+                ["expense", "Pengeluaran"],
+                ["income", "Pemasukan"],
+              ] as const).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={type === value ? "active" : ""}
+                  onClick={() => {
+                    setType(value);
+                    if (!categories.some((c) => c.id === categoryId && c.type === value)) {
+                      setCategoryId(categories.find((c) => c.type === value)?.id || "");
+                    }
+                  }}
+                >
+                  {type === value && <Check size={16} />}
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <CurrencyInput placeholder="Jumlah (Rp)" value={amount} onChange={setAmount} required />
+            <input className="field-input" placeholder="Nama Transaksi (mis. Makan siang di warung Bu As)"
+              value={name} onChange={(e) => setName(e.target.value)} required />
+
+            <div>
+              <div className="field-label-row">
+                <label className="field-label">Kategori</label>
+                <Link href="/settings/categories" className="section-head-link" style={{ fontSize: 11.5 }}>Kelola kategori →</Link>
+              </div>
+              <select className="field-input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
+                {categoriesForType.length === 0 && !selectedCategoryOutsideType && (
+                  <option value="">Belum ada kategori {type === "expense" ? "pengeluaran" : "pemasukan"}</option>
+                )}
+                {selectedCategoryOutsideType && (
+                  <option value={selectedCategoryOutsideType.id}>{selectedCategoryOutsideType.name} (kategori lama)</option>
+                )}
+                {categoriesForType.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <label className="outlined-field">
+              <span>Tanggal</span>
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+            </label>
+
+            <div>
+              <div className="field-label-row">
+                <label className="field-label">Akun kas/bank</label>
+                <Link href="/accounts?tab=kas" className="section-head-link" style={{ fontSize: 11.5 }}>Kelola akun →</Link>
+              </div>
+              <select className="field-input" value={accountId} onChange={(e) => setAccountId(e.target.value)} required>
+                {accounts.length === 0 && <option value="">Belum ada akun</option>}
+                {accounts.map((a) => (
+                  <option key={a.id} value={a.id}>{a.name} ({a.type}) — {rp(a.balance)}</option>
+                ))}
+              </select>
+            </div>
+
+            {type === "expense" && activeDebts.length > 0 && (
+              <div>
+                <label className="field-label">Kaitkan ke utang (opsional, mengurangi sisa utang)</label>
+                <select className="field-input" value={debtId} onChange={(e) => setDebtId(e.target.value)}>
+                  <option value="">Tidak dikaitkan</option>
+                  {activeDebts.map((d) => (
+                    <option key={d.id} value={d.id}>{d.name} — sisa {rp(Number(d.remainingAmount))}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <input className="field-input" placeholder="Catatan (opsional)" value={note} onChange={(e) => setNote(e.target.value)} />
+
+            {error && <p className="form-error">{error}</p>}
+            <button type="submit" className="btn btn-primary btn-block" disabled={uploading || !accountId || !categoryId}>
+              {uploading ? "Mengunggah invoice…" : editingId ? "Simpan Perubahan" : "Tambah"}
+            </button>
+          </form>
+        </>
+      )}
     </main>
   );
 }
