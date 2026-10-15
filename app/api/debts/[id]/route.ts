@@ -13,17 +13,23 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   try {
     const body = await request.json();
-    const { paymentAmount } = body;
-    if (!paymentAmount || Number(paymentAmount) <= 0) {
-      return NextResponse.json({ error: "Jumlah pembayaran tidak valid." }, { status: 400 });
+    const data: { name?: string; remainingAmount?: number } = {};
+    if (body.name !== undefined) {
+      const name = String(body.name).trim();
+      if (!name) return NextResponse.json({ error: "Nama utang wajib diisi." }, { status: 400 });
+      data.name = name;
+    }
+    if (body.paymentAmount !== undefined) {
+      if (!body.paymentAmount || Number(body.paymentAmount) <= 0) {
+        return NextResponse.json({ error: "Jumlah pembayaran tidak valid." }, { status: 400 });
+      }
+      data.remainingAmount = Math.max(0, Number(existing.remainingAmount) - Number(body.paymentAmount));
+    }
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ error: "Tidak ada perubahan." }, { status: 400 });
     }
 
-    const newRemaining = Math.max(0, Number(existing.remainingAmount) - Number(paymentAmount));
-
-    const debt = await prisma.debt.update({
-      where: { id },
-      data: { remainingAmount: newRemaining },
-    });
+    const debt = await prisma.debt.update({ where: { id }, data });
     return NextResponse.json({ debt });
   } catch (err) {
     console.error("Pay debt error:", err);
