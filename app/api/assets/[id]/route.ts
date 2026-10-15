@@ -13,12 +13,23 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   try {
     const body = await request.json();
-    const { currentValue } = body;
-    if (!currentValue || Number(currentValue) <= 0) {
-      return NextResponse.json({ error: "Nilai aset tidak valid." }, { status: 400 });
+    const data: { name?: string; currentValue?: number } = {};
+    if (body.name !== undefined) {
+      const name = String(body.name).trim();
+      if (!name) return NextResponse.json({ error: "Nama aset wajib diisi." }, { status: 400 });
+      data.name = name;
+    }
+    if (body.currentValue !== undefined) {
+      if (!body.currentValue || Number(body.currentValue) <= 0) {
+        return NextResponse.json({ error: "Nilai aset tidak valid." }, { status: 400 });
+      }
+      data.currentValue = Number(body.currentValue);
+    }
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ error: "Tidak ada perubahan." }, { status: 400 });
     }
 
-    const asset = await prisma.asset.update({ where: { id }, data: { currentValue: Number(currentValue) } });
+    const asset = await prisma.asset.update({ where: { id }, data });
     return NextResponse.json({ asset });
   } catch (err) {
     console.error("Update asset error:", err);
