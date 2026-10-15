@@ -37,17 +37,19 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const existing = await prisma.category.findFirst({ where: { id, householdId: ctx.householdId } });
   if (!existing) return NextResponse.json({ error: "Kategori tidak ditemukan." }, { status: 404 });
 
-  const [txCount, budgetCount] = await Promise.all([
-    prisma.transaction.count({ where: { categoryId: id } }),
-    prisma.budget.count({ where: { categoryId: id } }),
-  ]);
-  if (txCount > 0 || budgetCount > 0) {
+  const txCount = await prisma.transaction.count({ where: { categoryId: id } });
+  if (txCount > 0) {
     return NextResponse.json(
-      { error: "Kategori masih dipakai oleh transaksi atau anggaran, tidak bisa dihapus." },
+      { error: "Kategori masih dipakai oleh transaksi, tidak bisa dihapus." },
       { status: 400 }
     );
   }
 
-  await prisma.category.delete({ where: { id } });
+  // Anggaran hanya pengaturan (bukan riwayat) — baris dengan nilai 0 tetap
+  // tersimpan setelah dikosongkan, jadi ikut dihapus alih-alih memblokir.
+  await prisma.$transaction([
+    prisma.budget.deleteMany({ where: { categoryId: id, householdId: ctx.householdId } }),
+    prisma.category.delete({ where: { id } }),
+  ]);
   return NextResponse.json({ success: true });
 }
