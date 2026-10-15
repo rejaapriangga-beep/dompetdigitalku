@@ -1123,3 +1123,54 @@ a.tile-row:hover {
   padding: 28px;
   box-shadow: var(--shadow);
 }
+
+/* ===== Utang & Cicilan, Kategori (gaya Android) ===== */
+.stat-big-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.stat-big-row .stat-big-value {
+  font-size: 16px;
+}
+.debt-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.debt-card > .item-card-head,
+.debt-card > .progress-track {
+  align-self: stretch;
+}
+.page-note {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  margin-bottom: 16px;
+}
+.inline-add {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.inline-add > .field-input {
+  flex: 1;
+  min-width: 0;
+}
+.inline-add > .btn {
+  flex-shrink: 0;
+}
+.cat-edit-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-bottom: 2px solid var(--primary);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  padding: 6px 2px;
+  outline: none;
+}
