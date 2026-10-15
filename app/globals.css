@@ -908,6 +908,203 @@ a.tile-row:hover {
   justify-content: space-between;
   align-items: baseline;
 }
+.sheet-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* ---------- tab bar (TabBar Material) ---------- */
+/* Di halaman bertab, TabBar menempel tepat di bawah TopMenuBar selebar kolom. */
+.page-main-tabs {
+  padding-top: 0;
+}
+.page-main-tabs > .tab-bar {
+  margin: 0 -16px 16px;
+}
+.tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.tab-bar-item {
+  flex: 1;
+  padding: 14px 4px 12px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.tab-bar-item.active {
+  color: var(--primary);
+  font-weight: 600;
+  border-bottom-color: var(--primary);
+}
+
+/* ---------- kartu total besar (StatCard) & kartu baris ---------- */
+.stat-big {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+.stat-big-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.stat-big-label {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+.stat-big-value {
+  margin-top: 2px;
+  font-size: 18px;
+  font-weight: 600;
+}
+.text-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 6px 4px;
+}
+.row-card,
+.item-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 8px;
+}
+.row-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 6px 8px 12px;
+}
+.row-card-title {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.row-card-value {
+  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 13px;
+}
+.item-card {
+  padding: 10px 12px 12px;
+}
+.item-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: -6px;
+}
+.item-card-value {
+  margin: 4px 0 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.btn-outline-sm {
+  flex: none;
+  padding: 6px 16px;
+  font-size: 13px;
+  background: transparent;
+}
+
+/* ---------- Anggaran ---------- */
+.budget-summary {
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.budget-summary-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.budget-summary-value {
+  margin: 4px 0 2px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.budget-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 150px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 6px 10px;
+  background: var(--bg);
+  font-size: 13.5px;
+}
+.budget-input:focus-within {
+  border-color: var(--primary);
+}
+.budget-input > div {
+  flex: 1;
+  min-width: 0;
+}
+/* Isian anggaran di app Android tidak punya tombol kalkulator. */
+.budget-input button {
+  display: none !important;
+}
+.budget-input input {
+  width: 100%;
+  padding: 0 !important;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: right;
+  outline: none;
+}
+.budget-line {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+.stamp-button {
+  cursor: pointer;
+  font: inherit;
+  font-size: 11.5px;
+  padding: 3px 10px;
+}
+.plain-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
 
 /* ---------- auth pages ---------- */
 .auth-shell {

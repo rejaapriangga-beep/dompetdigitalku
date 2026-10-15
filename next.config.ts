@@ -21,6 +21,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/reports", destination: "/health", permanent: true },
       { source: "/goals", destination: "/", permanent: true },
+      { source: "/investments", destination: "/accounts?tab=investasi", permanent: true },
     ];
   },
   async headers() {

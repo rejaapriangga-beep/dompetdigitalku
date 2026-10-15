@@ -33,7 +33,6 @@ const TITLES: Record<string, string> = {
   "/budgets": "Anggaran Bulanan",
   "/health": "Laporan",
   "/debts": "Utang & Cicilan",
-  "/investments": "Investasi",
   "/settings/categories": "Kategori Transaksi",
   "/settings/account": "Akun Saya",
   "/delete-account": "Hapus Akun",
@@ -47,7 +46,6 @@ const TITLES: Record<string, string> = {
 // (mis. halaman dibuka langsung dari bookmark).
 const PARENT: Record<string, string> = {
   "/debts": "/accounts",
-  "/investments": "/accounts",
   "/settings/categories": "/budgets",
   "/delete-account": "/settings/account",
 };
