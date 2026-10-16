@@ -92,7 +92,7 @@ export default function TermsPage() {
         <p style={{ lineHeight: 1.7, fontSize: 14 }}>
           Kami berhak menangguhkan atau menghentikan akses akun yang terbukti melanggar Syarat &amp; Ketentuan
           ini. Anda dapat menghentikan penggunaan Aplikasi dan meminta penghapusan akun kapan saja melalui{" "}
-          <a href="mailto:privacy@dompetdigitalku.my.id" className="link-plain">privacy@dompetdigitalku.my.id</a>.
+          <a href="mailto:support@dompetdigitalku.my.id" className="link-plain">support@dompetdigitalku.my.id</a>.
         </p>
       </Section>
 
@@ -114,7 +114,7 @@ export default function TermsPage() {
       <Section title="11. Hubungi Kami">
         <p style={{ lineHeight: 1.7, fontSize: 14 }}>
           Pertanyaan seputar Syarat &amp; Ketentuan ini dapat disampaikan ke{" "}
-          <a href="mailto:privacy@dompetdigitalku.my.id" className="link-plain">privacy@dompetdigitalku.my.id</a>
+          <a href="mailto:support@dompetdigitalku.my.id" className="link-plain">support@dompetdigitalku.my.id</a>
         </p>
       </Section>
 
