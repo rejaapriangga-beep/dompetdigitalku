@@ -45,7 +45,7 @@ export default function AccountSettingsPage() {
           Menghapus akun akan menghapus secara permanen akun Anda beserta{" "}
           <strong>seluruh data rumah tangga</strong> (transaksi, akun kas/bank, aset, utang, investasi, dan
           anggaran). Tindakan ini <strong>tidak bisa dibatalkan</strong>. Jika rumah tangga Anda memiliki anggota
-          lain, hubungi <a href="mailto:privacy@dompetdigitalku.my.id" className="link-plain">privacy@dompetdigitalku.my.id</a> terlebih dahulu.
+          lain, hubungi <a href="mailto:support@dompetdigitalku.my.id" className="link-plain">support@dompetdigitalku.my.id</a> terlebih dahulu.
         </p>
         <p className="field-label">
           Ketik <strong>HAPUS</strong> untuk konfirmasi

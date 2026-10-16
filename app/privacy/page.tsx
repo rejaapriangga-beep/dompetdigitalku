@@ -120,7 +120,7 @@ export default function PrivacyPage() {
         </p>
         <p style={{ lineHeight: 1.7, fontSize: 14, marginBottom: 10 }}>
           <strong>Cara mengajukan:</strong> kirim email ke{" "}
-          <a href="mailto:privacy@dompetdigitalku.my.id" className="link-plain">privacy@dompetdigitalku.my.id</a>{" "}
+          <a href="mailto:support@dompetdigitalku.my.id" className="link-plain">support@dompetdigitalku.my.id</a>{" "}
           dari alamat email yang terdaftar di akun Anda. Kami akan menindaklanjuti permintaan Anda paling lambat
           dalam waktu yang wajar sesuai ketentuan yang berlaku.
         </p>
@@ -148,7 +148,7 @@ export default function PrivacyPage() {
       <Section title="12. Hubungi Kami">
         <p style={{ lineHeight: 1.7, fontSize: 14 }}>
           Untuk pertanyaan, permintaan terkait data pribadi, atau laporan insiden keamanan, hubungi:{" "}
-          <a href="mailto:privacy@dompetdigitalku.my.id" className="link-plain">privacy@dompetdigitalku.my.id</a>
+          <a href="mailto:support@dompetdigitalku.my.id" className="link-plain">support@dompetdigitalku.my.id</a>
         </p>
       </Section>
 

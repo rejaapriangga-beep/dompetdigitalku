@@ -27,7 +27,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json(
         {
           error:
-            "Rumah tangga ini memiliki anggota lain, jadi akun belum bisa dihapus otomatis. Hubungi privacy@dompetdigitalku.my.id untuk bantuan.",
+            "Rumah tangga ini memiliki anggota lain, jadi akun belum bisa dihapus otomatis. Hubungi support@dompetdigitalku.my.id untuk bantuan.",
         },
         { status: 409 }
       );
@@ -46,6 +46,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ message: "Akun dan seluruh data terkait berhasil dihapus." });
   } catch (err) {
     console.error("Delete account error:", err);
-    return NextResponse.json({ error: "Gagal menghapus akun. Coba lagi atau hubungi privacy@dompetdigitalku.my.id." }, { status: 500 });
+    return NextResponse.json({ error: "Gagal menghapus akun. Coba lagi atau hubungi support@dompetdigitalku.my.id." }, { status: 500 });
   }
 }

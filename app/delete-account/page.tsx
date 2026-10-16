@@ -40,7 +40,7 @@ export default function DeleteAccountPage() {
         <p className="panel-title">Cara 2 — Lewat Email (jika tidak bisa login)</p>
         <p style={{ lineHeight: 1.7, fontSize: 14 }}>
           Kirim email permintaan penghapusan akun ke{" "}
-          <a href="mailto:privacy@dompetdigitalku.my.id" className="link-plain">privacy@dompetdigitalku.my.id</a>
+          <a href="mailto:support@dompetdigitalku.my.id" className="link-plain">support@dompetdigitalku.my.id</a>
           {" "}dari alamat email yang terdaftar di akun Anda. Kami akan memproses permintaan Anda paling lambat
           dalam waktu yang wajar.
         </p>
@@ -60,7 +60,7 @@ export default function DeleteAccountPage() {
         </ul>
         <p style={{ fontSize: 13, color: "var(--ink-soft)", lineHeight: 1.6 }}>
           Jika rumah tangga Anda memiliki anggota lain, data mereka ikut terhapus juga — hubungi{" "}
-          <a href="mailto:privacy@dompetdigitalku.my.id" className="link-plain">privacy@dompetdigitalku.my.id</a>
+          <a href="mailto:support@dompetdigitalku.my.id" className="link-plain">support@dompetdigitalku.my.id</a>
           {" "}terlebih dahulu sebelum menghapus akun bersama.
         </p>
       </div>
